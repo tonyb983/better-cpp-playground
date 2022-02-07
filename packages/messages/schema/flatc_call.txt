@@ -1,0 +1,23 @@
+# The full call to flatc used
+flatc --cpp`                # Generate C++ headers for tables/structs
+ --scoped-enums`            # C++11 typed enums instead of C-style enums
+ --gen-name-strings`        # Generate type name functions for C++ and Rust.
+ --gen-object-api`          # Generate an additional object-based API.
+ --gen-compare`             # Generate operator== for object-based API types.
+ --gen-nullable`            # Add Clang _Nullable for C++ pointer.
+ --cpp-std 'c++17'`         # Generate a C++ code using features of selected C++ standard.
+ --cpp-static-reflection`   # When using C++17, generate extra code to provide compile-time (static) reflection of Flatbuffers types. Requires --cpp-std to be "c++17" or higher.
+ --filename-suffix '.gen'`  # Default is '_generated'
+ --filename-ext 'hpp'`      # Default is '.h'. Putting '.hpp' leads to two '.'s
+ --reflect-names`           # Add minimal type/name reflection.
+ --force-empty`             # Force strings and vectors to empty rather than null
+ .\note.fbs
+
+# Undocumented version
+flatc --cpp --scoped-enums --gen-name-strings --gen-object-api --gen-compare --gen-nullable --cpp-std 'c++17' --cpp-static-reflection --filename-suffix '.gen' --filename-ext 'hpp' --reflect-names --force-empty .\note.fbs
+
+# Barebones call to 'flatc'
+flatc --cpp --cpp-std 'c++17' --filename-suffix '.gen' --filename-ext 'hpp' .\note.fbs
+
+# Create flatbuffer from proto file
+flatc --proto --oneof-union .\note.proto

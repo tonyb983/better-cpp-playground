@@ -1,0 +1,350 @@
+syntax = "proto3";
+package pg.gen;
+
+// import "google/protobuf/any.proto";
+// import "google/protobuf/timestamp.proto";
+// import "google/protobuf/empty.proto";
+// import "google/protobuf/fieldmask.proto";
+
+option cc_enable_arenas = true;
+
+message Timestamp {
+    // Represents seconds of UTC time since Unix epoch
+    // 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
+    // 9999-12-31T23:59:59Z inclusive.
+    int64 seconds = 1;
+
+    // Non-negative fractions of a second at nanosecond resolution. Negative
+    // second values with fractions must still have non-negative nanos values
+    // that count forward in time. Must be from 0 to 999,999,999
+    // inclusive.
+    int32 nanos = 2;
+}
+
+message ResponseError {
+    uint32 code = 1;
+    string message = 2;
+}
+
+message ReplaceTextPair {
+    string search = 1;
+    string replace = 2;
+}
+
+message AppendTextOp {
+    string text = 1;
+}
+
+message InsertTextOp {
+    string text = 1;
+    uint32 position = 2;
+}
+
+message PrependTextOp {
+    string text = 1;
+}
+
+message RemoveTextRangeOp {
+    uint32 start = 1;
+    uint32 end = 2;
+}
+
+message ReplaceTextOp {
+    ReplaceTextPair input = 1;
+}
+
+message ReplaceTextMultipleOp {
+    repeated ReplaceTextPair pairs = 1;
+}
+
+message RemoveTextOp {
+    string removal = 1;
+}
+
+message RemoveTextMultipleOp {
+    repeated string removals = 1;
+}
+
+message TextModificationKind {
+    oneof kind {
+        AppendTextOp append = 1;
+        InsertTextOp insert = 2;
+        PrependTextOp prepend = 3;
+        RemoveTextRangeOp remove_range = 4;
+        ReplaceTextOp replace = 5;
+        ReplaceTextMultipleOp replace_multi = 6;
+        RemoveTextOp remove = 7;
+        RemoveTextMultipleOp remove_all = 8;
+    }
+}
+
+message TextMatchesQuery {
+    string text = 1;
+    optional bool case_sensitive = 2;
+}
+
+message TextContainsQuery {
+    string text = 1;
+    optional bool case_sensitive = 2;
+}
+
+message TextStartsWithQuery {
+    string text = 1;
+    optional bool case_sensitive = 2;
+}
+
+message TextEndsWithQuery {
+    string text = 1;
+    optional bool case_sensitive = 2;
+}
+
+message TextSearchKind {
+    oneof kind {
+        TextMatchesQuery matches = 1;
+        TextContainsQuery contains = 2;
+        TextStartsWithQuery starts_with = 3;
+        TextEndsWithQuery ends_with = 4;
+    }
+}
+
+message BeforeDateQuery {
+    Timestamp date = 1;
+}
+
+message AfterDateQuery {
+    Timestamp date = 1;
+}
+
+message InDateRangeQuery {
+    Timestamp start = 1;
+    Timestamp end = 2;
+}
+
+message NotInDateRangeQuery {
+    Timestamp start = 1;
+    Timestamp end = 2;
+}
+
+message DateSearchKind {
+    oneof kind {
+        BeforeDateQuery before = 1;
+        AfterDateQuery after = 2;
+        InDateRangeQuery in_range = 3;
+        NotInDateRangeQuery not_in_range = 4;
+    }
+}
+
+message NoteTitleSearch {
+    TextSearchKind title_search = 1;
+}
+
+message NoteContentSearch {
+    TextSearchKind content_search = 1;
+}
+
+message NoteTagSearch {
+    TextSearchKind tag_search = 1;
+}
+
+message NoteCreatedSearch {
+    DateSearchKind created_search = 1;
+}
+
+message NoteUpdatedSearch {
+    DateSearchKind updated_search = 1;
+}
+
+message SearchNoteData {
+    oneof kind {
+        NoteTitleSearch title = 1;
+        NoteContentSearch content = 2;
+        NoteTagSearch tags = 3;
+        NoteCreatedSearch created = 4;
+        NoteUpdatedSearch updated = 5;
+    }
+}
+
+message SearchNoteRequest {
+    repeated SearchNoteData searches = 1;
+    optional uint32 page_size = 2;
+    optional string page_token = 3;
+}
+
+message SearchNoteResponse {
+    repeated NoteObject notes = 1;
+    optional string next_page_token = 2;
+}
+
+message CreateNoteData {
+    optional string title = 1;
+    optional string content = 2;
+    repeated string tags = 3;
+}
+
+message CreateNoteRequest {
+    // The parent resource name where the Note is to be created.
+    optional string parent = 1;
+
+    // The Note resource to create.
+    // The field name should match the Noun in the method name.
+    CreateNoteData note = 2;
+
+    // The Note id to use for this Note. Optional so that IDs can be generated
+    // by the server (preferred way).
+    optional string id = 3;
+}
+
+message CreateNoteResponse {
+    // The created Note.
+    oneof resp {
+        NoteObject note = 1;
+        ResponseError error = 2;
+    }
+}
+
+message UpdateNoteData {
+    string id = 1;
+    repeated TextModificationKind title_mods = 2;
+    repeated TextModificationKind content_mods = 3;
+    repeated TextModificationKind tag_mods = 4;
+}
+
+message UpdateNoteRequest {
+    // The Note resource which replaces the resource on the server.
+    UpdateNoteData target = 1;
+
+    // The update mask applies to the resource. For the `FieldMask` definition,
+    // see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+    // Removed because UpdateNote encompasses this field (and Note is not deeply nested enough)
+    // FieldMask update_mask = 2;
+}
+
+message UpdateNoteResponse {
+    // The updated Note.
+    oneof resp {
+        NoteObject note = 1;
+        ResponseError error = 2;
+    }
+}
+
+message UpdateNotesRequest {
+    repeated UpdateNoteData targets = 1;
+}
+
+message UpdateNotesResponse {
+    uint32 updated_count = 1;
+    uint32 error_count = 2;
+    repeated NoteObject updated = 3;
+    repeated ResponseError errors = 4;
+}
+
+message DeleteNoteData {
+    string id = 1;
+}
+
+message DeleteNoteRequest {
+    // The resource name of the Note to be deleted.
+    DeleteNoteData target = 1;
+}
+
+message Boolean {
+    bool value = 1;
+}
+
+message DeleteNoteResponse {
+    oneof resp {
+        Boolean success = 1;
+        ResponseError error = 2;
+    }
+}
+
+message DeleteNotesRequest {
+    repeated DeleteNoteData targets = 1;
+}
+
+message DeleteNotesResponse {
+    uint32 deleted_count = 1;
+    repeated ResponseError errors = 2;
+}
+
+message ListNotesRequest {
+    // The maximum number of items to return.
+    optional int32 page_size = 1;
+
+    // The next_page_token value returned from a previous List request, if any.
+    optional string page_token = 2;
+}
+
+message ListNotesResponse {
+    // The field name should match the noun "Type" in the method name.
+    // There will be a maximum number of items returned based on the page_size field in the request.
+    repeated NoteObject notes = 1;
+
+    // Token to retrieve the next page of results, or empty if there are no more results in the list.
+    string next_page_token = 2;
+}
+
+message GetNoteRequest {
+    string id = 1;
+}
+
+message GetNoteResponse {
+    oneof resp {
+        NoteObject note = 1;
+        ResponseError error = 2;
+    }
+}
+
+message NoteObject {
+    string id = 1;
+    string title = 2;
+    string content = 3;
+    repeated string tags = 4;
+    Timestamp created = 5;
+    Timestamp updated = 6;
+}
+
+message NoteStorage {
+    repeated NoteObject notes = 1;
+}
+
+// Generated according to https://cloud.google.com/apis/design/standard_methods
+service NoteService {
+    rpc ListNotes(ListNotesRequest) returns (ListNotesResponse) {
+        // option (google.api.Http) = {
+        //     get: "/v1alpha1/Notes"
+        // };
+    }
+
+    rpc GetNote(GetNoteRequest) returns (NoteObject) {
+        // option (google.api.Http) = {
+        //     get: "/v1alpha1/{name=Notes/*}"
+        // };
+    }
+
+    rpc SearchNote(SearchNoteRequest) returns (SearchNoteResponse) {
+        // option (google.api.Http) = {
+        //     get: "/v1alpha1/Notes:search"
+        // };
+    }
+
+    rpc CreateNote(CreateNoteRequest) returns (CreateNoteResponse) {
+        // option (google.api.Http) = {
+        //     post: "/v1alpha1/Notes"
+        //     body: "Note"
+        // };
+    }
+
+    rpc UpdateNote(UpdateNoteRequest) returns (UpdateNoteResponse) {
+        // option (google.api.Http) = {
+        //     patch: "/v1alpha1/{Note.name=Notes/*}"
+        //     body: "Note"
+        // };
+    }
+
+    rpc DeleteNote(DeleteNoteRequest) returns (DeleteNoteResponse) {
+        // option (google.api.Http) = {
+        //     delete: "/v1alpha1/{name=Notes/*}"
+        // };
+    }
+}

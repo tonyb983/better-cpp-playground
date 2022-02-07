@@ -1,0 +1,156 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"doxygen_runner.configuration_file_override": "${workspaceFolder}/docs/doxygen/Doxyfile",
+		"cmake.buildDirectory": "${workspaceFolder}/build/${buildKit}/${buildType}",
+		"cmake.configureSettings": {
+			"CMAKE_TOOLCHAIN_FILE": "${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+		},
+		"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+		"[cpp]": {
+			"editor.wordBasedSuggestions": false,
+			"editor.suggest.insertMode": "replace",
+			"editor.semanticHighlighting.enabled": true,
+			"editor.formatOnSave": true,
+			"editor.defaultFormatter": "xaver.clang-format",
+		},
+		"C_Cpp.autocompleteAddParentheses": true,
+		"C_Cpp.codeAnalysis.clangTidy.enabled": true,
+		"cSpell.words": [
+			"cppcoreguidelines",
+			"cyrb",
+			"ebco",
+			"logi",
+			"logw"
+		],
+		"files.associations": {
+			"format": "cpp",
+			"xstring": "cpp",
+			"algorithm": "cpp",
+			"array": "cpp",
+			"atomic": "cpp",
+			"bit": "cpp",
+			"cctype": "cpp",
+			"charconv": "cpp",
+			"chrono": "cpp",
+			"clocale": "cpp",
+			"cmath": "cpp",
+			"codecvt": "cpp",
+			"compare": "cpp",
+			"concepts": "cpp",
+			"condition_variable": "cpp",
+			"cstdarg": "cpp",
+			"cstddef": "cpp",
+			"cstdint": "cpp",
+			"cstdio": "cpp",
+			"cstdlib": "cpp",
+			"cstring": "cpp",
+			"ctime": "cpp",
+			"cwchar": "cpp",
+			"deque": "cpp",
+			"exception": "cpp",
+			"coroutine": "cpp",
+			"forward_list": "cpp",
+			"list": "cpp",
+			"map": "cpp",
+			"resumable": "cpp",
+			"set": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"unordered_set": "cpp",
+			"vector": "cpp",
+			"filesystem": "cpp",
+			"fstream": "cpp",
+			"functional": "cpp",
+			"future": "cpp",
+			"initializer_list": "cpp",
+			"iomanip": "cpp",
+			"ios": "cpp",
+			"iosfwd": "cpp",
+			"iostream": "cpp",
+			"istream": "cpp",
+			"iterator": "cpp",
+			"limits": "cpp",
+			"locale": "cpp",
+			"memory": "cpp",
+			"mutex": "cpp",
+			"new": "cpp",
+			"numeric": "cpp",
+			"optional": "cpp",
+			"ostream": "cpp",
+			"queue": "cpp",
+			"random": "cpp",
+			"ratio": "cpp",
+			"regex": "cpp",
+			"sstream": "cpp",
+			"stack": "cpp",
+			"stdexcept": "cpp",
+			"stop_token": "cpp",
+			"streambuf": "cpp",
+			"system_error": "cpp",
+			"thread": "cpp",
+			"tuple": "cpp",
+			"type_traits": "cpp",
+			"typeinfo": "cpp",
+			"utility": "cpp",
+			"valarray": "cpp",
+			"variant": "cpp",
+			"xfacet": "cpp",
+			"xhash": "cpp",
+			"xiosbase": "cpp",
+			"xlocale": "cpp",
+			"xlocbuf": "cpp",
+			"xlocinfo": "cpp",
+			"xlocmes": "cpp",
+			"xlocmon": "cpp",
+			"xlocnum": "cpp",
+			"xloctime": "cpp",
+			"xmemory": "cpp",
+			"xstddef": "cpp",
+			"xtr1common": "cpp",
+			"xtree": "cpp",
+			"xutility": "cpp",
+			"*.inc": "cpp",
+			"any": "cpp",
+			"cinttypes": "cpp",
+			"cwctype": "cpp",
+			"memory_resource": "cpp",
+			"typeindex": "cpp"
+		},
+		"editor.tokenColorCustomizations": {
+			"textMateRules": [
+				{
+					"scope": "googletest.failed",
+					"settings": {
+						"foreground": "#f00"
+					}
+				},
+				{
+					"scope": "googletest.passed",
+					"settings": {
+						"foreground": "#0f0"
+					}
+				},
+				{
+					"scope": "googletest.run",
+					"settings": {
+						"foreground": "#0f0"
+					}
+				}
+			]
+		},
+		"gtest-adapter.debugConfig": "launch (msvc)",
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cmake-tools",
+			"twxs.cmake",
+			"ms-vscode.cpptools",
+			"betwo.vscode-doxygen-runner"
+		]
+	}
+}

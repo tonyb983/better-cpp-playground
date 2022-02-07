@@ -1,0 +1,305 @@
+// Generated from note.proto
+
+namespace pg.gen.TextModificationKind_;
+
+union KindUnion {
+  pg.gen.AppendTextOp,
+  pg.gen.InsertTextOp,
+  pg.gen.PrependTextOp,
+  pg.gen.RemoveTextRangeOp,
+  pg.gen.ReplaceTextOp,
+  pg.gen.ReplaceTextMultipleOp,
+  pg.gen.RemoveTextOp,
+  pg.gen.RemoveTextMultipleOp,
+}
+
+namespace pg.gen.TextSearchKind_;
+
+union KindUnion {
+  pg.gen.TextMatchesQuery,
+  pg.gen.TextContainsQuery,
+  pg.gen.TextStartsWithQuery,
+  pg.gen.TextEndsWithQuery,
+}
+
+namespace pg.gen.DateSearchKind_;
+
+union KindUnion {
+  pg.gen.BeforeDateQuery,
+  pg.gen.AfterDateQuery,
+  pg.gen.InDateRangeQuery,
+  pg.gen.NotInDateRangeQuery,
+}
+
+namespace pg.gen.SearchNoteData_;
+
+union KindUnion {
+  pg.gen.NoteTitleSearch,
+  pg.gen.NoteContentSearch,
+  pg.gen.NoteTagSearch,
+  pg.gen.NoteCreatedSearch,
+  pg.gen.NoteUpdatedSearch,
+}
+
+namespace pg.gen.CreateNoteResponse_;
+
+union RespUnion {
+  pg.gen.NoteObject,
+  pg.gen.ResponseError,
+}
+
+namespace pg.gen.UpdateNoteResponse_;
+
+union RespUnion {
+  pg.gen.NoteObject,
+  pg.gen.ResponseError,
+}
+
+namespace pg.gen.DeleteNoteResponse_;
+
+union RespUnion {
+  pg.gen.Boolean,
+  pg.gen.ResponseError,
+}
+
+namespace pg.gen.GetNoteResponse_;
+
+union RespUnion {
+  pg.gen.NoteObject,
+  pg.gen.ResponseError,
+}
+
+namespace pg.gen;
+
+table Timestamp {
+  seconds:long;
+  nanos:int;
+}
+
+table ResponseError {
+  code:uint;
+  message:string;
+}
+
+table ReplaceTextPair {
+  search:string;
+  replace:string;
+}
+
+table AppendTextOp {
+  text:string;
+}
+
+table InsertTextOp {
+  text:string;
+  position:uint;
+}
+
+table PrependTextOp {
+  text:string;
+}
+
+table RemoveTextRangeOp {
+  start:uint;
+  end:uint;
+}
+
+table ReplaceTextOp {
+  input:pg.gen.ReplaceTextPair;
+}
+
+table ReplaceTextMultipleOp {
+  pairs:[pg.gen.ReplaceTextPair];
+}
+
+table RemoveTextOp {
+  removal:string;
+}
+
+table RemoveTextMultipleOp {
+  removals:[string];
+}
+
+table TextModificationKind {
+  kind:pg.gen.TextModificationKind_.KindUnion;
+}
+
+table TextMatchesQuery {
+  text:string;
+  case_sensitive:bool;
+}
+
+table TextContainsQuery {
+  text:string;
+  case_sensitive:bool;
+}
+
+table TextStartsWithQuery {
+  text:string;
+  case_sensitive:bool;
+}
+
+table TextEndsWithQuery {
+  text:string;
+  case_sensitive:bool;
+}
+
+table TextSearchKind {
+  kind:pg.gen.TextSearchKind_.KindUnion;
+}
+
+table BeforeDateQuery {
+  date:pg.gen.Timestamp;
+}
+
+table AfterDateQuery {
+  date:pg.gen.Timestamp;
+}
+
+table InDateRangeQuery {
+  start:pg.gen.Timestamp;
+  end:pg.gen.Timestamp;
+}
+
+table NotInDateRangeQuery {
+  start:pg.gen.Timestamp;
+  end:pg.gen.Timestamp;
+}
+
+table DateSearchKind {
+  kind:pg.gen.DateSearchKind_.KindUnion;
+}
+
+table NoteTitleSearch {
+  title_search:pg.gen.TextSearchKind;
+}
+
+table NoteContentSearch {
+  content_search:pg.gen.TextSearchKind;
+}
+
+table NoteTagSearch {
+  tag_search:pg.gen.TextSearchKind;
+}
+
+table NoteCreatedSearch {
+  created_search:pg.gen.DateSearchKind;
+}
+
+table NoteUpdatedSearch {
+  updated_search:pg.gen.DateSearchKind;
+}
+
+table SearchNoteData {
+  kind:pg.gen.SearchNoteData_.KindUnion;
+}
+
+table SearchNoteRequest {
+  searches:[pg.gen.SearchNoteData];
+  page_size:uint;
+  page_token:string;
+}
+
+table SearchNoteResponse {
+  notes:[pg.gen.NoteObject];
+  next_page_token:string;
+}
+
+table CreateNoteData {
+  title:string;
+  content:string;
+  tags:[string];
+}
+
+table CreateNoteRequest {
+  parent:string;
+  note:pg.gen.CreateNoteData;
+  id:string;
+}
+
+table CreateNoteResponse {
+  resp:pg.gen.CreateNoteResponse_.RespUnion;
+}
+
+table UpdateNoteData {
+  id:string;
+  title_mods:[pg.gen.TextModificationKind];
+  content_mods:[pg.gen.TextModificationKind];
+  tag_mods:[pg.gen.TextModificationKind];
+}
+
+table UpdateNoteRequest {
+  target:pg.gen.UpdateNoteData;
+}
+
+table UpdateNoteResponse {
+  resp:pg.gen.UpdateNoteResponse_.RespUnion;
+}
+
+table UpdateNotesRequest {
+  targets:[pg.gen.UpdateNoteData];
+}
+
+table UpdateNotesResponse {
+  updated_count:uint;
+  error_count:uint;
+  updated:[pg.gen.NoteObject];
+  errors:[pg.gen.ResponseError];
+}
+
+table DeleteNoteData {
+  id:string;
+}
+
+table DeleteNoteRequest {
+  target:pg.gen.DeleteNoteData;
+}
+
+table Boolean {
+  value:bool;
+}
+
+table DeleteNoteResponse {
+  resp:pg.gen.DeleteNoteResponse_.RespUnion;
+}
+
+table DeleteNotesRequest {
+  targets:[pg.gen.DeleteNoteData];
+}
+
+table DeleteNotesResponse {
+  deleted_count:uint;
+  errors:[pg.gen.ResponseError];
+}
+
+table ListNotesRequest {
+  page_size:int;
+  page_token:string;
+}
+
+table ListNotesResponse {
+  notes:[pg.gen.NoteObject];
+  next_page_token:string;
+}
+
+table GetNoteRequest {
+  id:string;
+}
+
+table GetNoteResponse {
+  resp:pg.gen.GetNoteResponse_.RespUnion;
+}
+
+table NoteObject {
+  id:string;
+  title:string;
+  content:string;
+  tags:[string];
+  created:pg.gen.Timestamp;
+  updated:pg.gen.Timestamp;
+}
+
+table NoteStorage {
+  notes:[pg.gen.NoteObject];
+}
+
