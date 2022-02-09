@@ -15,30 +15,6 @@ set(LOCAL_PROJECT_NAME        "Playground")
 set(LOCAL_PROJECT_VERSION     "0.1.0")
 set(LOCAL_PROJECT_DESCRIPTION "Description")
 
-# Header files (relative to "include" directory)
-# set(HEADERS
-#     header.hpp
-# )
-
-# Source files (relative to "src" directory)
-# set(SOURCES
-#     main.cpp
-# )
-
-# Source files (relative to "test" directory)
-# set(TEST_SOURCES
-# )
-
-# Compiler definitions
-set(DEFINES
-
-)
-
-# Compiler options
-set(OPTIONS
-
-)
-
 # Project setup
 project(${LOCAL_PROJECT_NAME}
         VERSION ${LOCAL_PROJECT_VERSION}
@@ -53,24 +29,12 @@ if(RUN_CLANG_TIDY)
 	set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,bugprone-*,misc-*,performance-*,readability-*)
 endif()
 
-# option(CLANG_TIME_TRACE "Enable clang profiling." ON)
-
 # if(CLANG_TIME_TRACE)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace -fprofile-arcs -ftest-coverage -Wno-dev")
 # endif()
 
-# add_executable(${LOCAL_PROJECT_NAME})
-
-# list(TRANSFORM HEADERS PREPEND "include/")
-# list(TRANSFORM SOURCES PREPEND "src/")
-# list(TRANSFORM TEST_SOURCES PREPEND "test/")
-
-# target_include_directories(${LOCAL_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-# target_sources(${LOCAL_PROJECT_NAME} PRIVATE ${SOURCES} ${HEADERS})
-# target_compile_definitions(${LOCAL_PROJECT_NAME} PRIVATE ${DEFINES})
-# target_compile_options(${LOCAL_PROJECT_NAME} PRIVATE ${OPTIONS})
-
-# set_target_properties(${LOCAL_PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "bin")
+set(PG_BUILT_BIN_DIR ${CMAKE_BINARY_DIR}/bin)
 
 ####################
 #   Dependencies   #
@@ -88,6 +52,9 @@ find_package(nlohmann_json CONFIG REQUIRED)
 
 find_package(nameof CONFIG REQUIRED)
 # target_link_libraries(${LOCAL_PROJECT_NAME} PRIVATE nameof::nameof)
+
+find_package(visit_struct CONFIG REQUIRED)
+# target_link_libraries(main PRIVATE visit_struct::visit_struct)
 
 find_path(PROMISE_CPP_INCLUDE_DIRS "promise-cpp/promise.hpp")
 # target_include_directories(main PRIVATE ${PROMISE_CPP_INCLUDE_DIRS})
@@ -115,6 +82,17 @@ find_package(Flatbuffers CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 # target_link_libraries(main PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
 
+find_path(MPMCQUEUE_INCLUDE_DIRS "rigtorp/MPMCQueue.h")
+# target_include_directories(main PRIVATE ${MPMCQUEUE_INCLUDE_DIRS})
+
+find_package(unofficial-concurrentqueue CONFIG REQUIRED)
+# target_link_libraries(main PRIVATE unofficial::concurrentqueue::concurrentqueue)
+
+find_package(Microsoft.GSL CONFIG REQUIRED)
+# target_link_libraries(main PRIVATE Microsoft.GSL::GSL)
+
+# Disable the multitude of unnecessary targets added by CTest
+set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 include(CTest)
 include(GoogleTest)
 
@@ -123,15 +101,3 @@ include(GoogleTest)
 ##################
 add_subdirectory(packages)
 add_subdirectory(apps)
-
-###################
-#     Testing     #
-###################
-
-# add_executable(tests)
-# target_sources(tests PRIVATE ${TEST_SOURCES})
-# target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
-
-
-# include(Catch)
-# catch_discover_tests(tests)

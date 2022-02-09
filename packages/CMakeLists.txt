@@ -1,4 +1,5 @@
 add_subdirectory(data)
+add_subdirectory(logging)
 add_subdirectory(messages)
 add_subdirectory(serde)
 add_subdirectory(utility)

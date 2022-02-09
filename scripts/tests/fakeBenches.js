@@ -14,7 +14,7 @@ const log = new PrettyLogger('fakeBenches', { consoleLog: true })
 
 log.assert('hashCode' in Object.prototype, 'Object.prototype.hashCode is not defined, extension methods not applied?')
 
-const bencher = new Bencher({ iters: 1000000, warmup: 1000, writeLine: (msg, ...args) => log.info(msg, ...args) })
+const bencher = new Bencher({ iters: 100000, warmup: 1000, writeLine: (msg, ...args) => log.info(msg, ...args) })
 
 // jvmHash
 const jvmHash = await bencher.run('jvmHash', (n) => `${n}`.jvmHash())

@@ -4,6 +4,7 @@ set(THIS_NAME "PG_SerdeLib")
 set(HEADERS
     de.hpp
     ser.hpp
+    concepts.hpp
 )
 
 # Source files (relative to "src" directory)
@@ -20,5 +21,7 @@ target_include_directories(${THIS_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inclu
 # target_link_libraries(${THIS_NAME} PRIVATE Boost::uuid)
 target_include_directories(${THIS_NAME} PRIVATE ${BOOST_HEADER_INCLUDE_DIRS})
 target_link_libraries(${THIS_NAME} PRIVATE fmt::fmt)
+target_link_libraries(${THIS_NAME} PRIVATE nlohmann_json nlohmann_json::nlohmann_json)
+target_link_libraries(${THIS_NAME} PRIVATE visit_struct::visit_struct)
 
 add_subdirectory(tests)

@@ -37,15 +37,19 @@ DerivePointerAlignment: false
 FixNamespaceComments: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '<[^\.\\\/]*>' # Match angle brackets and no punctuation (stdlib)
+  - Regex: '<[^./\\]*>' # Match angle brackets and no punctuation (stdlib)
     Priority: 0
     SortPriority: 0
     CaseSensitive: false
-  - Regex: "<(boost|fmt|spdlog|folly|abseil).*" # Known libraries
+  - Regex: "<(abseil|boost|fmt|folly|gsl|nameof|spdlog|visit_struct).*>" # Known libraries
     Priority: 1
     SortPriority: 1
     CaseSensitive: false
   - Regex: '<pg\/(.*\/?)*\.hp?p?>' # Match this project
+    Priority: 6
+    SortPriority: 1
+    CaseSensitive: false
+  - Regex: "<(gtest).*>" # Known Test Libraries
     Priority: 4
     SortPriority: 1
     CaseSensitive: false
@@ -54,11 +58,11 @@ IncludeCategories:
     SortPriority: 4
     CaseSensitive: false
   - Regex: ".*" # Rest
-    Priority: 3
+    Priority: 5
     SortPriority: 5
     CaseSensitive: false
-IncludeIsMainRegex: '([-_\.](spec|test|unittest))?$'
-IndentCaseLabels: true
+IncludeIsMainRegex: "([-_.](spec|test|unittest))?$"
+IndentCaseLabels: false
 IndentPPDirectives: BeforeHash
 IndentWidth: 4
 IndentWrappedFunctionNames: false

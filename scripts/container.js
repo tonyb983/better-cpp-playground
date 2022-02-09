@@ -4,6 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import { basename } from 'path'
 import { PrettyLogger } from './pp.js'
 import {
     hashAny,
@@ -16,8 +17,17 @@ import {
     isPrimitive,
     isString,
     isSymbol,
-    notNil
+    notNil,
+    sanitizeWindowsFilename,
 } from './util.js';
+
+const safeName = (name) => {
+    if (!isString(name)) {
+        return "Unnamed"
+    }
+
+    return sanitizeWindowsFilename(name).replace('.js', '')
+}
 
 /**
  * @typedef {Object} Container
@@ -39,7 +49,7 @@ export class Container {
      * @param  {...any?} services Any services to add to the container upon construction.
      */
     constructor(owner, print, ...services) {
-        const [name, ownerName] = isString(owner) ? [`Container[${owner}]`, owner] : [`Container`, 'Unnamed']
+        const [name, ownerName] = isString(owner) ? [`Container[${safeName(owner)}]`, safeName(owner)] : [`Container`, 'Unnamed']
         const consoleLog = isBool(print) && print
         this.#logger = new PrettyLogger(name, { consoleLog });
         const ownerLogger = new PrettyLogger(ownerName, { consoleLog: true })

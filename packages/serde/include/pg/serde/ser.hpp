@@ -14,11 +14,14 @@
 
 #pragma once
 
+#include <stop_token>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include <boost/hana.hpp>
+#include <visit_struct/visit_struct.hpp>
+#include <visit_struct/visit_struct_boost_hana.hpp>
 
 namespace pg::serde {
 
@@ -27,6 +30,9 @@ class Serializer {
     template<typename T>
     void serialize(const T& value) {
         boost::hana::for_each(boost::hana::accessors<T>(), [&](auto accessor) { serialize(accessor(value)); });
+        auto task = concurrency::make_task([&] {
+
+        });
     }
 
     auto serialize_int(const int& value) -> std::vector<char> {
@@ -36,5 +42,10 @@ class Serializer {
                                    static_cast<char>(value) };
     }
 };
+
+template<typename T>
+auto serialize(const T& value) -> std::vector<char> {
+    return {};
+}
 
 }  // namespace pg::serde

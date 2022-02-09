@@ -119,7 +119,13 @@
 			"cinttypes": "cpp",
 			"cwctype": "cpp",
 			"memory_resource": "cpp",
-			"typeindex": "cpp"
+			"typeindex": "cpp",
+			"syncstream": "cpp",
+			"shared_mutex": "cpp",
+			"span": "cpp",
+			"source_location": "cpp",
+			"pointers": "cpp",
+			"gsl": "cpp"
 		},
 		"editor.tokenColorCustomizations": {
 			"textMateRules": [
@@ -143,7 +149,7 @@
 				}
 			]
 		},
-		"gtest-adapter.debugConfig": "launch (msvc)",
+		"gtest-adapter.debugConfig": "launch (msvc)"
 	},
 	"extensions": {
 		"recommendations": [

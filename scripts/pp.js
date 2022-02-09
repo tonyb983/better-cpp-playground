@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import { appendFile as fsPromiseAppendFile, open as fsPromiseOpen } from 'node:fs/promises'
+import path from 'node:path'
+import { stripVTControlCharacters as stripAscii, format, formatWithOptions, } from 'node:util'
+
 import chalk from 'chalk'
 import { Observable } from 'rxjs'
 import { assert } from 'chai'
 const betterBeTrue = assert.isTrue
 
-import { getTimestamp, isBool, isFunction, isNil, isNumber, isObjectLike, notNil, } from './util.js'
+import { getTimestamp, isBool, isFunction, isNil, isNumber, isObjectLike, isString, notNil, } from './util.js'
 import project from './projectInfo.js'
 
 export class LogLevel {
@@ -67,7 +70,7 @@ class LogFormatter {
     /**
      * Make the log prefix: [timestamp]Level|Name| 
      * @param {LogLevel} lvl The level of the log.
-     * @returns The created, colored, prefix.
+     * @returns The new colored log message prefix.
      */
     makePrefix(lvl) {
         return `[${getTimestamp()}]${lvl.toString()}|${this.#name}|`
@@ -75,13 +78,14 @@ class LogFormatter {
 
     /**
      * Formats the message and args for the level.
+     * Automatically calls `makePrefix`.
      * @param {LogLevel} lvl The level of the log message.
      * @param {any} msg The message to print.
      * @param  {...any?} args Additional data to log.
      */
     formatMsg(lvl, msg, ...args) {
         const p = this.makePrefix(lvl)
-        const a = notNil(args) ? ` | ${JSON.stringify(args)}` : ''
+        const a = !!args.length ? ` | ${JSON.stringify(args)}` : ''
         return `${p} ${msg}${a}`
     }
 
@@ -103,7 +107,7 @@ class LogFormatter {
     formatMsgColor(lvl, msg, ...args) {
         const p = this.makePrefixColor(lvl)
         const m = lvl.color(msg)
-        const a = notNil(args) ? ` | ${lvl.color(JSON.stringify(args))}` : ''
+        const a = !!args.length ? ` | ${lvl.color(JSON.stringify(args))}` : ''
         return `${p} ${m}${a}`
     }
 }
@@ -111,6 +115,48 @@ class LogFormatter {
 const lBracket = chalk.gray('[')
 const rBracket = chalk.gray(']')
 const pipe = chalk.gray('|')
+
+const isNonEmptyString = (value) => isString(value) && !!value.length
+
+class BaseLogger {
+    #name
+    constructor(name, opts, ...args) {
+        this.#name = name
+    }
+
+    /**
+     * Get the name of this logger.
+     * @returns {string} The name of this logger.
+     */
+    get name() { return this.#name }
+    set name(name) { isNonEmptyString(name) ? this.#name = name : this.#name = 'BaseLogger' }
+
+    /**
+     * Log the given `msg` at the specified `lvl`, passing any additional `args` to the log message (printf-style).
+     * @param {LogLevel} lvl The level of the log message.
+     * @param {any} msg The message to log.
+     * @param  {...any} args Additional args to log.
+     */
+    log(lvl, msg, ...args) { }
+    info(msg, ...args) { }
+    warn(msg, ...args) { }
+    error(msg, ...args) { }
+    assert(condition, msg, ...args) { }
+}
+
+class ConsoleLogger extends BaseLogger {
+    #formatter
+
+    constructor(name, opts, ...args) {
+        super(name, opts, ...args)
+
+    }
+
+    info(msg, ...args) {
+        const txt = this.#formatter.formatMsg(LogLevel.Info, msg, ...args)
+        console.log(txt)
+    }
+}
 
 export class PrettyLogger {
     static #instance = undefined
@@ -168,6 +214,18 @@ export class PrettyLogger {
     }
 
     /**
+     * Writes a log message to the log file for this logger.
+     * @param {LogLevel} lvl The level of the log message.
+     * @param {string} msg The message to write to the log file.
+     * @param {...any?} args Additional data to log.
+     */
+    #write(lvl, msg, ...args) {
+        const path = this.#outPath
+        const txt = this.#formatter.formatMsg(lvl, msg, ...args)
+        setImmediate(() => fsPromiseAppendFile(path, txt))
+    }
+
+    /**
      * Console Log - Logs the given message and any args passed as info to the console. The message
      * and args will be left unformatted so that the user can provide coloring if they would like.
      * @param {any} msg The message to print.
@@ -178,9 +236,8 @@ export class PrettyLogger {
             console.log(this.#formatter.formatMsgColor(lvl, msg, ...args))
         }
 
-        const logMsg = this.#formatter.formatMsg(lvl, msg, ...args)
-        fs.appendFileSync(this.#outPath, logMsg + '\n')
-        this.#dispatch(LogLevel.Error, msg, ...args)
+        this.#write(lvl, msg, ...args)
+        this.#dispatch(lvl, msg, ...args)
     }
 
     /**
@@ -269,6 +326,7 @@ export class PrettyLogger {
 
         if (!success) {
             console.log(this.#formatter.formatMsgColor(LogLevel.Fatal, `Assertion Failed: ${msg}`, args))
+            // Manually write since we are about to force an exit.
             const logMsg = this.#formatter.formatMsg(LogLevel.Fatal, `Assertion Failed: ${msg}`, args)
             fs.appendFileSync(this.#outPath, logMsg + '\n')
             // process.exit(1)
@@ -383,3 +441,13 @@ export class PrettyLogger {
         }
     }
 }
+
+
+
+export const createConsoleLogger = () => { }
+
+export const createFileLogger = () => { }
+
+export const createTestLogger = () => { }
+
+export const createLogger = () => { }

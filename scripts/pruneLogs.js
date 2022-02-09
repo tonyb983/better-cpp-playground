@@ -9,7 +9,7 @@ import { opendir, readdir } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
 import { subDays, differenceInDays } from 'date-fns'
 
-import { launch } from './util.js'
+import { isArray, launch } from './util.js'
 
 launch('pruneLogs.js', async (ctx) => {
     const getLogFiles = async (targetDir) => {
@@ -55,7 +55,7 @@ launch('pruneLogs.js', async (ctx) => {
     ctx.logger.info(`AllFiles: ${JSON.stringify(allFiles, null, 2)}`)
 
     const cutoff = subDays(new Date(), 3)
-    Array.from(allFiles.entries()).forEach(([dir, files]) => files.forEach(file => {
+    Array.from(allFiles.entries()).forEach(([dir, files]) => isArray(files) && files.forEach(file => {
         const base = basename(file)
         const year = parseInt(base.substring(0, 4))
         const month = parseInt(base.substring(4, 6))
@@ -68,7 +68,7 @@ launch('pruneLogs.js', async (ctx) => {
         const fileDate = new Date(year, month - 1, day)
         const diff = differenceInDays(fileDate, cutoff)
         // ctx.logger.info(`Difference in days between cutoff (${cutoff}) and fileDate (${fileDate}) is ${diff}`)
-        if (differenceInDays(fileDate, cutoff) < 1) {
+        if (diff < 1) {
             oldFiles.push(resolve(dir, file))
         }
     }))

@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import { inspect as ins } from 'node:util'
 import { isPromise as isP, isSymbolObject, isAsyncFunction as iaf } from 'node:util/types'
 import pad from 'lodash/pad.js';
@@ -17,6 +18,12 @@ const timestampStripper = /(:|-|\.)/g
 
 // =====================
 // Pub Utility Functions
+/**
+ * Checks if the value provided is an Array.
+ * @param {unknown} value The value to check.
+ * @returns {value is Array<unknown>} True if the value is an array, false otherwise.
+ */
+export const isArray = (value) => notNil(value) && Array.isArray(value)
 export const isAsyncFunction = (value) => notNil(value) && iaf(value)
 /** 
  * Determines whether the given value is a boolean (primitive or class object).
@@ -59,33 +66,60 @@ export const isNumber = (value) => typeof value === 'number' || (isObjectLike(va
  */
 export const isPromise = (value) => isP(value);
 export const isClass = (cls) => {
-    if (typeof (cls) === 'function' && 'prototype' in cls) {
-        try {
-            cls.arguments && cls.caller;
-        } catch (e) {
-            return true;
-        }
+    if (typeof (cls) === 'function' && 'prototype' in cls && 'constructor' in cls) {
+        return true;
     }
     return false;
 };
 
 /** @type {(obj: any?) => obj is { constructor: class}} */
-export const hasConstructor = (obj) => notNil(obj) && (typeof obj === 'object' || typeof obj === 'function') && 'constructor' in obj && isFunction(obj['constructor'])
+export const hasConstructor = (obj) => {
+    if (obj === Function) {
+        return true;
+    }
+    return notNil(obj) && (typeof obj === 'object' || typeof obj === 'function') && 'constructor' in obj && isFunction(obj['constructor'])
+}
 /** @type {(obj: any?) => obj is { prototype: {constructor: class}}} */
-export const hasPrototype = (obj) => notNil(obj) && (typeof obj === 'object' || typeof obj === 'function') && 'prototype' in obj && typeof obj['prototype'] === 'object'
+export const hasPrototype = (obj) => {
+    if (obj === Function) {
+        return true;
+    }
+
+    return notNil(obj) && (typeof obj === 'object' || typeof obj === 'function') && 'prototype' in obj && (typeof obj['prototype'] === 'object' || typeof obj['prototype'] === 'function')
+}
 
 /** @type {(cls: any?) => cls is {constructor: Function} & {prototype: Object} & Function} */
-export const isLikelyClassDeclaration = (cls) => typeof cls === 'function' && hasConstructor(cls) && hasPrototype(cls)
+export const isLikelyClassDeclaration = (cls) => {
+    if (cls === Function) {
+        return true;
+    }
+
+    return typeof cls === 'function' && hasConstructor(cls) && hasPrototype(cls)
+}
 
 /** @type {(obj: any?) => obj is {constructor: Function & {prototype: {constructor: Function & {prototype: any}}}}} */
 export const isLikelyClassInstance = (obj) => {
-    if (hasConstructor(obj) &&
-        hasPrototype(obj['constructor'] &&
-            hasConstructor(obj['constructor']['prototype'])) &&
-        obj.constructor.prototype.constructor === obj.constructor) {
-        return true
+    if (isNil(obj)) { return false }
+
+    if (obj === Function) {
+        return false;
     }
 
+    if (['number', 'string', 'boolean'].includes(typeof obj)) {
+        // Primitive - true
+        return true;
+    } else if (typeof obj === 'object' &&
+        'constructor' in obj && typeof obj['constructor'] === 'function' &&
+        'prototype' in obj['constructor'] && typeof obj['constructor']['prototype'] === 'object' &&
+        'constructor' in obj['constructor']['prototype'] && obj.constructor === obj.constructor.prototype.constructor) {
+        // Object with constructor that matches constructor.prototype.constructor
+        return true
+    } else if ('constructor' in obj && 'prototype' in obj) {
+        // instances should not have a constructor AND a prototype
+        return false
+    }
+
+    // Catch all
     return false
 }
 
@@ -113,6 +147,49 @@ export const isSymbol = (value) => notNil(value) && (typeof value === 'symbol' |
  * @returns {string} The date string.
  */
 export const getTimestamp = () => new Date().toISOString().replace(timestampStripper, '')
+
+// < (less than)
+// > (greater than)
+// : (colon - sometimes works, but is actually NTFS Alternate Data Streams)
+// " (double quote)
+// / (forward slash)
+// \ (backslash)
+// | (vertical bar or pipe)
+// ? (question mark)
+// * (asterisk)
+
+/**
+ * Warning: Flaky
+ * Remove special characters from a string to make it safe for use as a file name / path.
+ * @param {fs.PathLike} path The path to clean.
+ * @returns {string} The cleaned path.
+ */
+export const sanitizeWindowsPath = (path) => {
+    const firstColon = path.indexOf(':')
+    const firstSlash = path.indexOf('/')
+    const firstBackslash = path.indexOf('\\')
+    if (firstColon > -1 && (firstSlash > -1 || firstBackslash > -1) && (firstColon < firstSlash || firstColon < firstBackslash)) {
+        if (firstSlash === firstColon + 1 || firstBackslash === firstColon + 1) {
+            const [drive, rest] = [path.substring(0, firstColon + 2), path.substring(firstColon + 2)]
+            return drive + rest.replace(/[><:"|?*]*/g, '')
+        } else {
+            const [drive, rest] = [path.substring(0, firstColon + 1), path.substring(firstColon + 1)]
+            return drive + rest.replace(/[><:"|?*]*/g, '')
+        }
+    } else {
+        return path.replace(/[><:"|?*]*/g, '')
+    }
+}
+
+const filenameScrubber = /[/\\><:"|?*]*/g
+/**
+ * Removes any special characters that windows does not accept in filenames from the given string.
+ * @param {string} filename The file name to scrub.
+ * @returns {string}
+ */
+export const sanitizeWindowsFilename = (filename) => {
+    return filename.replace(filenameScrubber, '')
+}
 
 /**
  * The `inspect()` method returns a string representation of `object` that is
@@ -424,14 +501,17 @@ const runCatching = (self, ...args) => {
 const runCatchingAsync = async (self, ...args) => {
     let result = undefined
     try {
-        result = self(...args)
+        let temp = self(...args)
+
+        if (isAsyncFunction(self) || isPromise(temp) || isPromiseLike(temp)) {
+            result = await temp
+        } else {
+            result = temp
+        }
     } catch (err) {
-        return Promise.resolve(err)
+        result = Promise.resolve(err)
     }
 
-    if (isPromise(result) || isPromiseLike(result)) {
-        return await result
-    }
     return result
 }
 
@@ -456,9 +536,12 @@ const jvmHash = (self) => {
  * @link [`Stack Overflow Duh`](https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript?rq=1)
  * @param {string} self This string.
  * @param {number} seed The (optional) seed to use for the hash.
- * @returns The hash code for this string.
+ * @returns {number} The hash code for this string.
  */
 const cyrbHash = (self, seed = 0) => {
+    if (!!self.length === false) {
+        return 0
+    }
     let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
     for (let i = 0, ch; i < self.length; i++) {
         ch = self.charCodeAt(i);
