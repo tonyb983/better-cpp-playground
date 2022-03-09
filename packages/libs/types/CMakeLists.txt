@@ -1,31 +1,24 @@
-set(THIS_NAME "PG_UtilityLib")
+set(THIS_NAME "PG_TypesLib")
 
-# Header files (relative to "include/pg/serde" directory)
+# Header files (relative to "include/pg/data" directory)
 set(HEADERS
-        concepts.hpp
-        describe.hpp
-        debug.hpp
-        guard.hpp
-        meta.hpp
-        result.hpp
-        static_warning.hpp
-        Trait.hpp
-        Value.hpp)
+    "types.hpp"
+)
 
 # Source files (relative to "src" directory)
 set(SOURCES
-        pgutility.lib.cpp
+    "types.lib.cpp"
 )
 
-list(TRANSFORM HEADERS PREPEND "include/pg/util/")
+list(TRANSFORM HEADERS PREPEND "include/pg/")
 list(TRANSFORM SOURCES PREPEND "src/")
 
 add_library(${THIS_NAME} ${SOURCES} ${HEADERS})
 target_include_directories(${THIS_NAME} PUBLIC include)
-target_include_directories(${THIS_NAME} PRIVATE ${BOOST_HEADER_INCLUDE_DIRS})
 target_link_libraries(${THIS_NAME} PRIVATE fmt::fmt)
 target_link_libraries(${THIS_NAME} PRIVATE nameof::nameof)
 target_include_directories(${THIS_NAME} PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DIRS})
+target_link_libraries(${THIS_NAME} PRIVATE stx::stx)
 
 add_subdirectory(tests)
 

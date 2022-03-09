@@ -4,6 +4,7 @@ add_subdirectory(messages)
 add_subdirectory(parse)
 add_subdirectory(serde)
 add_subdirectory(stdfmt)
+add_subdirectory(types)
 add_subdirectory(utility)
 
 set(PG_ALL_DOCUMENTED_SOURCES "${PG_ALL_DOCUMENTED_SOURCES}" PARENT_SCOPE)

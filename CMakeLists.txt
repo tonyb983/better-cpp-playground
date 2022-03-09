@@ -104,6 +104,9 @@ find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(stx CONFIG REQUIRED)
 # target_link_libraries(main PRIVATE stx::stx)
 
+find_path(PARALLEL_HASHMAP_INCLUDE_DIRS "parallel_hashmap/btree.h")
+# target_include_directories(main PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DIRS})
+
 # Disable the multitude of unnecessary targets added by CTest
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 include(CTest)

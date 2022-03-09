@@ -12,22 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <pg/util/concepts.hpp>
-#include <pg/util/debug.hpp>
-#include <pg/util/describe.hpp>
-#include <pg/util/guard.hpp>
-#include <pg/util/meta.hpp>
-#include <pg/util/result.hpp>
-#include <pg/util/static_warning.hpp>
-#include <pg/util/Trait.hpp>
-#include <pg/util/Value.hpp>
+#include <pg/types.hpp>
 
-namespace pg::util {
-
-void _pg_utility_noop() {
-    auto guard = sg::make_scope_guard([]() {});
-
-    pg::util::meta::are_same<int, bool, char>();
-    pg::util::meta::is_any<int, bool, double>();
-}
-}  // namespace pg::util
+namespace pg::types {
+namespace {
+    auto _pg_types_noop() {
+        i32 number = 0;
+        usize numbers[4] = { 1, 2, 3, 4 };
+        usize* ptr = numbers;
+        fmt::print("{}", *ptr);
+    }
+}  // namespace
+}  // namespace pg::types
