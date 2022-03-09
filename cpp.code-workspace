@@ -125,7 +125,8 @@
 			"span": "cpp",
 			"source_location": "cpp",
 			"pointers": "cpp",
-			"gsl": "cpp"
+			"gsl": "cpp",
+			"ranges": "cpp"
 		},
 		"editor.tokenColorCustomizations": {
 			"textMateRules": [

@@ -11,9 +11,9 @@ set(CMAKE_CXX_STANDARD 20)
 #####################
 
 # Project variables
-set(LOCAL_PROJECT_NAME        "Playground")
-set(LOCAL_PROJECT_VERSION     "0.1.0")
-set(LOCAL_PROJECT_DESCRIPTION "Description")
+set(LOCAL_PROJECT_NAME "Playground")
+set(LOCAL_PROJECT_VERSION "0.1.0")
+set(LOCAL_PROJECT_DESCRIPTION "A playground to get some experience with CMake and C++ in general!")
 
 # Project setup
 project(${LOCAL_PROJECT_NAME}
@@ -25,16 +25,23 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(RUN_CLANG_TIDY "Enable clang tidy." OFF)
 
-if(RUN_CLANG_TIDY)
-	set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,bugprone-*,misc-*,performance-*,readability-*)
-endif()
+if (RUN_CLANG_TIDY)
+    set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,bugprone-*,misc-*,performance-*,readability-*)
+endif ()
 
-# if(CLANG_TIME_TRACE)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace -fprofile-arcs -ftest-coverage -Wno-dev")
+# Create build timing reports
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
 # endif()
 
 set(PG_BUILT_BIN_DIR ${CMAKE_BINARY_DIR}/bin)
+set(PG_BUILT_TEST_BIN_DIR ${CMAKE_BINARY_DIR}/bin/tests)
+set(PG_ALL_DOCUMENTED_SOURCES "")
+
+# Uncomment this to print all variables while building
+#get_cmake_property(_variableNames VARIABLES)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach ()
 
 ####################
 #   Dependencies   #
@@ -71,7 +78,10 @@ find_package(SqliteOrm CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 # target_link_libraries(main PRIVATE spdlog::spdlog)
 
-find_path(BOOST_HEADER_INCLUDE_DIRS "boost/uuid/uuid.hpp" "boost/uuid/uuid_generators.hpp" "boost/hana.hpp" "boost/hana/accessors.hpp")
+find_path(BOOST_HEADER_INCLUDE_DIRS "boost/circular_buffer.hpp" "boost/uuid/uuid.hpp" "boost/uuid/uuid_generators.hpp" "boost/hana.hpp" "boost/hana/accessors.hpp")
+# target_include_directories(main PRIVATE ${BOOST_HEADER_INCLUDE_DIRS})
+find_package(Boost REQUIRED)
+# target_link_libraries(main PRIVATE Boost::boost Boost::<lib1> Boost::<lib2> ...)
 
 find_package(protobuf CONFIG REQUIRED)
 # target_link_libraries(main PRIVATE protobuf::libprotoc protobuf::libprotobuf protobuf::libprotobuf-lite)
@@ -91,6 +101,9 @@ find_package(unofficial-concurrentqueue CONFIG REQUIRED)
 find_package(Microsoft.GSL CONFIG REQUIRED)
 # target_link_libraries(main PRIVATE Microsoft.GSL::GSL)
 
+find_package(stx CONFIG REQUIRED)
+# target_link_libraries(main PRIVATE stx::stx)
+
 # Disable the multitude of unnecessary targets added by CTest
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 include(CTest)
@@ -100,4 +113,7 @@ include(GoogleTest)
 #    Sub-Dirs    #
 ##################
 add_subdirectory(packages)
-add_subdirectory(apps)
+
+add_subdirectory(docs)
+
+# message(STATUS "PG_ALL_DOCUMENTED_SOURCES=${PG_ALL_DOCUMENTED_SOURCES}")
