@@ -25,7 +25,6 @@ _deps
 node_modules/
 
 # Others
-logs/
-.timing/
-.codechecker/
-/?.json
+/logs
+/.timing
+/.codechecker

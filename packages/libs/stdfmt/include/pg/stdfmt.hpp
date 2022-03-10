@@ -12,33 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#pragma once
+
 #include <cassert>
 #include <optional>
 #include <type_traits>
 #include <variant>
 
 #include <fmt/format.h>
-
 #include <nameof.hpp>
 
-template<typename T>
-struct fmt::formatter<std::optional<T>, std::enable_if_t<fmt::is_formattable<T>::value, char>>:
-    fmt::formatter<std::string> {
-    template<typename FormatCtx>
+
+template <typename T>
+struct fmt::formatter<std::optional<T>, std::enable_if_t<fmt::is_formattable<T>::value, char>>
+    : fmt::formatter<std::string> {
+    template <typename FormatCtx>
     auto format(const std::optional<T>& opt, FormatCtx& ctx) {
         return opt ? formatter<std::string>::format(fmt::format("{}({})", NAMEOF_TYPE_EXPR(opt), *opt), ctx)
                    : formatter<std::string>::format(fmt::format("{}(None)", NAMEOF_TYPE_EXPR(opt)), ctx);
     }
 };
 
-template<typename... Ts>
+template <typename... Ts>
 struct fmt::formatter<std::variant<Ts...>>: fmt::dynamic_formatter<> {
     auto format(const std::variant<Ts...>& v, fmt::format_context& ctx) {
         return std::visit(
-            [&](const auto& val) {
-                return dynamic_formatter<>::format(fmt::format("{}({})", NAMEOF_TYPE_EXPR(v), val), ctx);
-            },
-            v);
+          [&](const auto& val) {
+              return dynamic_formatter<>::format(fmt::format("{}({})", NAMEOF_TYPE_EXPR(v), val), ctx);
+          },
+          v);
     }
 };
 

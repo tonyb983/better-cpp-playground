@@ -16,6 +16,7 @@
 #include <pg/util/debug.hpp>
 #include <pg/util/describe.hpp>
 #include <pg/util/guard.hpp>
+#include <pg/util/lazy.hpp>
 #include <pg/util/meta.hpp>
 #include <pg/util/result.hpp>
 #include <pg/util/static_warning.hpp>

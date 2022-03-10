@@ -30,8 +30,7 @@
   SOFTWARE.
 */
 
-#ifndef RESULT_RESULT_HPP
-#define RESULT_RESULT_HPP
+#pragma once
 
 #include <cstddef>           // std::size_t
 #include <functional>        // std::reference_wrapper, std::invoke
@@ -41,7 +40,6 @@
 #include <string>            // std::string (for exception message)
 #include <type_traits>       // std::enable_if, std::is_constructible, etc
 #include <utility>           // std::in_place_t, std::forward
-
 
 #if defined(RESULT_EXCEPTIONS_DISABLED)
 #    include <cstdio>  // std::fprintf, stderr
@@ -5026,5 +5024,3 @@ inline RESULT_INLINE_VISIBILITY auto RESULT_NS_IMPL::swap(result<void, E>& lhs, 
 #undef RESULT_INLINE_VISIBILITY
 #undef RESULT_NODISCARD
 #undef RESULT_WARN_UNUSED
-
-#endif /* RESULT_RESULT_HPP */

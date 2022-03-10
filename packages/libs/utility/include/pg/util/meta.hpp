@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#pragma once
 #include <type_traits>
 
 namespace pg {
@@ -25,5 +26,5 @@ namespace util {
         struct are_same: std::conjunction<std::is_same<T, Ts>...> { };
 
     }  // namespace meta
-}  // namespace utility
+}  // namespace util
 }  // namespace pg

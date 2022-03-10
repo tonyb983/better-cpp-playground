@@ -6,6 +6,7 @@ set(HEADERS
         describe.hpp
         debug.hpp
         guard.hpp
+        lazy.hpp
         meta.hpp
         result.hpp
         static_warning.hpp

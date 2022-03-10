@@ -5,6 +5,7 @@ set(SOURCES
     debug.spec.cpp
     describe.spec.cpp
     guard.spec.cpp
+    lazy.spec.cpp
     result.spec.cpp
 )
 
